@@ -1,0 +1,137 @@
+﻿@model QnA.Models.Tables.QnABoard
+
+<!--line map-->
+<div class="card-body">
+    <div class="row">
+        <div class="col-xl-3 col-sm-6">
+            <div>
+                <span style="vertical-align:middle">Home</span><span class="text-primary" style="vertical-align:middle"> > 묻고답하기</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end of line map-->
+<!--content-->
+<div class="main-card mb-3 card">
+    <form name="frmForm" id="frmForm" method="post" asp-controller="QnABoard" asp-action="Create">
+        <div class="card-body">
+            <div class="mb-3 clsValid">
+                <label class="mb-1" for="BTitle">제목</label>
+                <input class="form-control" name="BTitle" id="BTitle" type="text" placeholder="제목을 입력해 주세요." />
+                <div class="errMsg"></div>
+            </div>
+            <div class="mb-3 clsValid">
+                <label class="mb-1" for="UserName">등록자</label>
+                <input class="form-control" name="UserName" id="UserName" type="text" placeholder="이름을 입력해 주세요." />
+                <div class="errMsg"></div>
+            </div>
+            <div class="mb-3 clsValid">
+                <label class="mb-1" for="UserPwd">비밀번호</label>
+                <input class="form-control" name="UserPwd" id="UserPwd" type="password" placeholder="비밀번호를 입력해 주세요." />
+                <div class="errMsg"></div>
+                <span class="text-danger fst-italic small">※ 영문소문자+숫자+특수문자 조합 9~15자리</span>
+            </div>
+            <div class="mb-3 clsValid">
+                <label class="mb-1" for="BContent">내용</label>
+                <textarea class="form-control" name="BContent" id="BContent" placeholder="내용을 입력해 주세요." rows="5"></textarea>
+                <div class="errMsg"></div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-6 col-6">
+                    <div class="d-flex gap-2">
+                        <input type="submit" value="확인" class="btn btn-success" id="btnConfirm" />
+                        <input type="button" value="취소" class="btn btn-danger" id="btnCancel" />
+                    </div>
+                </div>
+                <div class="col-md-6 col-6">
+                    <div class="d-flex justify-content-end">
+                        <input type="button" value="목록" class="btn btn-primary" id="btnList" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!--end of content-->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnList, #btnCancel").click(function (e) {
+            e.preventDefault();
+
+            location.href = "/QnABoard/Index";
+        });
+
+        // 공백 체크 규칙을 추가합니다.
+        $.validator.addMethod("whitespace", function (value, element) {
+            return this.optional(element) || $.trim(value) !== "";
+        }, "공백은 허용되지 않습니다.");
+
+        //비밀번호 reg
+        jQuery.validator.addMethod("foo", function (value, element) {
+            var chkPwd = /^(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9])(?=.*[0-9]).{9,15}$/;
+            var chkPwd2 = /(\w)\1\1/;
+
+            var rtn = true;
+            if (chkPwd2.test(value) == true) {
+                rtn = false;
+            } else if (chkPwd.test(value) == false) {
+                rtn = false;
+            }
+
+            return this.optional(element) || rtn;
+        }, "비밀번호는 같은 문자를 3번 이상 사용하실 수 없으며 영문소문자+숫자+특수문자를 조합하여 9~15자리로 입력해 주세요.");
+
+        //폼 체크
+        $("#frmForm").validate({
+            errorClass: "is-invalid",
+            validClass: 'is-valid',
+            debug: false,
+            rules: {
+                BTitle: {
+                    required: true,
+                    whitespace: true
+                },
+                UserName: {
+                    required: true,
+                    whitespace: true
+                },
+                UserPwd: {
+                    required: true,
+                    whitespace: true,
+                    foo: true
+                },
+                BContent: {
+                    required: true,
+                    whitespace: true
+                }
+            },
+            messages: {
+                BTitle: {
+                    required: "제목을 입력해 주세요."
+                },
+                UserName: {
+                    required: "등록자를 입력해 주세요."
+                },
+                UserPwd: {
+                    required: "비밀번호를 입력해 주세요."
+                },
+                BContent: {
+                    required: "내용을 입력해 주세요."
+                }
+            },
+            errorPlacement: function (error, element) {
+                error.addClass("invalid-feedback");
+                error.appendTo(element.closest(".clsValid").find(".errMsg"))
+            },
+            submitHandler: function (form) {
+                if (confirm("등록하시겠습니까?")) {
+                    form.submit();
+                }
+            }
+        });
+    });
+</script>

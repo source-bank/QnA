@@ -1,0 +1,87 @@
+﻿@using QnA.Include
+@{
+    //게시글 PK 및 페이지 번호
+    int idx, CurrentPage;
+    idx = Convert.ToInt32(Context.Request.Query["idx"]);
+    CurrentPage = Convert.ToInt32(Context.Request.Query["CurrentPage"]);
+
+    //검색조건 및 검색어 관련
+    string SearchCondition, SearchKeyword;
+    SearchCondition = Context.Request.Query["SearchCondition"].ToString();
+    SearchKeyword = Context.Request.Query["SearchKeyword"].ToString();
+}
+
+<!--line map-->
+<div class="card-body">
+    <div class="row">
+        <div class="col-xl-3 col-sm-6">
+            <div>
+                <span style="vertical-align:middle">Home</span><span class="text-primary" style="vertical-align:middle"> > 묻고답하기</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end of line map-->
+<!--content-->
+<div class="main-card mb-3 card">
+    <div class="card-body">
+        <div class="mb-3">
+            <div class="fw-bold border-bottom">@ViewBag.Details.Rows[0]["BTitle"].ToString()</div>
+            <span class="text-secondary">@ViewBag.Details.Rows[0]["UserName"].ToString() | @ViewBag.Details.Rows[0]["RegDAte"].ToString() ( <span class="fst-italic">hit : @ViewBag.Details.Rows[0]["HitCount"].ToString()</span> )</span>
+        </div>
+        <div class="mb-3">
+            <div class="border-bottom pb-3">
+                @Html.Raw(ViewBag.Details.Rows[0]["BContent"].ToString().Replace("\r\n", "<br />"))
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="row">
+            <div class="col-md-6 col-6">
+                <div class="d-flex gap-2">
+                    <input type="button" value="답변" class="btn btn-info text-white" id="btnReply" />
+                    <input type="button" value="수정" class="btn btn-success" id="btnModify" />
+                    <input type="button" value="삭제" class="btn btn-danger" id="btnDelete" />
+                </div>
+            </div>
+            <div class="col-md-6 col-6">
+                <div class="d-flex justify-content-end">
+                    <input type="button" value="목록" class="btn btn-primary" id="btnList" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end of content-->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //답변
+        $("#btnReply").click(function (e) {
+            e.preventDefault();
+
+            location.href = "/QnABoard/Reply?idx=@idx&currentPage=@CurrentPage&searchCondition=@SearchCondition&searchKeyword=@SearchKeyword&bRef=@ViewBag.Details.Rows[0]["BRef"]&bLevel=@ViewBag.Details.Rows[0]["BLevel"]&bStep=@ViewBag.Details.Rows[0]["BStep"]";
+        });
+
+        //수정
+        $("#btnModify").click(function (e) {
+            e.preventDefault();
+
+            location.href = "/QnABoard/Edit?idx=@idx&currentPage=@CurrentPage&searchCondition=@SearchCondition&searchKeyword=@SearchKeyword";
+        });
+
+        //삭제
+        $("#btnDelete").click(function (e) {
+            e.preventDefault();
+
+            location.href = "/QnABoard/Delete?idx=@idx&currentPage=@CurrentPage&searchCondition=@SearchCondition&searchKeyword=@SearchKeyword&bRef=@ViewBag.Details.Rows[0]["BRef"]&bLevel=@ViewBag.Details.Rows[0]["BLevel"]&bStep=@ViewBag.Details.Rows[0]["BStep"]";
+        });
+
+        //목록
+        $("#btnList").click(function (e) {
+            e.preventDefault();
+
+            location.href = "/QnABoard/Index?currentPage=@CurrentPage&searchCondition=@SearchCondition&searchKeyword=@SearchKeyword";
+        });
+    });
+</script>

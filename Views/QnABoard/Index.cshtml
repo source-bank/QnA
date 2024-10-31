@@ -1,0 +1,134 @@
+﻿@using QnA.Include
+@{
+    //페이지 번호
+    int CurrentPage;
+    if (Convert.ToInt32(Context.Request.Query["CurrentPage"]) == 0)
+    {
+        CurrentPage = 1;
+    }
+    else
+    {
+        CurrentPage = Convert.ToInt32(Context.Request.Query["CurrentPage"]);
+    }
+
+    //검색조건 및 검색어 관련
+    string SearchCondition, SearchKeyword;
+    if (string.IsNullOrEmpty(Context.Request.Query["SearchKeyword"]))
+    {
+        SearchCondition = ViewBag.SearchCondition;
+        SearchKeyword = ViewBag.SearchKeyword;
+    }
+    else
+    {
+        SearchCondition = Context.Request.Query["SearchCondition"];
+        SearchKeyword = Context.Request.Query["SearchKeyword"];
+    }
+
+    //기타 변수들 모음
+    string SearchParam;
+    SearchParam = "";//지금은 암것도 없다.
+}
+<!--line map-->
+<div class="card-body">
+    <div class="row">
+        <div class="col-xl-3 col-sm-6">
+            <div>
+                <span style="vertical-align:middle">Home</span><span class="text-primary" style="vertical-align:middle"> > 묻고답하기</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end of line map-->
+<!--content-->
+<div class="main-card mb-3 card">
+    <div class="card-body">
+        <div class="row">
+            <form name="frmSearch" id="frmSearch" method="get" asp-controller="QnABoard" asp-action="Index">
+                <div class="col-md-5 col-12">
+                    <div class="input-group">
+                        <select name="SearchCondition" id="SearchCondition" class="form-select" aria-label="searchCondition">
+                            <option value="1" selected="@(SearchCondition == "1")">제목 @SearchCondition</option>
+                            <option value="2" selected="@(SearchCondition == "2")">내용</option>
+                            <option value="3" selected="@(SearchCondition == "3")">등록자</option>
+                        </select>
+                        <input type="text" class="form-control w-50" name="SearchKeyword" id="SearchKeyword" value="@SearchKeyword?.ToString()">
+                        <button type="submit" class="btn btn-outline-primary" id="btnHighSchoolSearch">검색</button>
+                        @if (ViewBag.SearchMode)
+                        {
+                            <a class="btn btn-outline-primary" asp-controller="QnABoard" asp-action="Index">목록</a>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+        <table class="mb-0 table">
+            <thead>
+                <tr>
+                    <th class="text-center">#</th>
+                    <th class="text-center">제목</th>
+                    <th class="text-center">등록자</th>
+                    <th class="text-center">등록일</th>
+                    <th class="text-center">조회수</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.DataList != null)
+                {
+                    int i = 0;
+                    foreach (var item in ViewBag.DataList.Rows)
+                    {
+                        <tr>
+                            <td scope="row" class="text-center">
+                                @{
+                                    int numbering = ViewBag.TotalRecordCount - (10 * (CurrentPage - 1)) - i;
+                                }
+                                @numbering
+                            </td>
+                            <td class="text-start">
+                                @Html.Raw(Common.FuncStep(item["BLevel"]))
+
+                                <a asp-controller="QnABoard" asp-action="Details" asp-route-idx="@item["Idx"].ToString()" asp-route-currentPage="@CurrentPage" asp-route-searchCondition="@SearchCondition.ToString()" asp-route-searchKeyword="@SearchKeyword.ToString()">@item["BTitle"].ToString()</a>
+
+                                @Html.Raw(@Common.FuncNew(item["RegDate"]))
+                            </td>
+                            <td class="text-center">@item["UserName"].ToString()</td>
+                            <td class="text-center">@Common.ChangeDate(item["RegDate"].ToString())</td>
+                            <td class="text-center">@item["HitCount"].ToString()</td>
+                        </tr>
+                        i++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td scope="row" colspan="5" class="text-center">등록된 데이터가 없습니다.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!--pagination-->
+        <div class="row mt-3">
+            <div class="col-md-6 col-12">
+                <nav class="d-grid d-md-flex justify-content-md-start">
+                    <CommonPager url='@Context.Request.Path'
+                                 page-index='Convert.ToInt32(Context.Request.Query["CurrentPage"])'
+                                 page-size='10'
+                                 record-count='@ViewBag.TotalRecordCount'
+                                 search-mode='@ViewBag.SearchMode'
+                                 search-condition='@SearchCondition'
+                                 search-keyword='@SearchKeyword'
+                                 search-param='@SearchParam'>
+                    </CommonPager>
+                </nav>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="d-grid d-md-flex justify-content-md-end">
+                    <a class="btn btn-primary" role="button" asp-action="Create">등록</a>
+                </div>
+            </div>
+        </div>
+        <!--end of pagination-->
+    </div>
+</div>
+<!--end of content-->
